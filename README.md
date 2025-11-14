@@ -13,7 +13,7 @@ Fork this repo and [adapt the template to build a test case which shows the fail
 * `build.sh` - a stub of a potential build script for your [test software](#providing-test-software)
 * `requirements.txt` - add any Python requirements here, if needed
 * `test.resc` - Renode script file, you will most likely be changing this one
-* `test.robot` - Robot test file, most likely also requiring adaptations
+* `test.robot` - [Robot](https://robotframework.org/) test file, most likely also requiring adaptations
 
 ## Usage to report bugs
 
