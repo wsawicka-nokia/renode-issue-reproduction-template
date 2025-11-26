@@ -10,27 +10,16 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v5
 
-
       - name: Configure git and artifacts dir
         run: |
           git config --global user.name "Antmicro"
           git config --global user.email "contact@antmicro.com"
 
-
-        # Fill up with your requirements
-      - name: Prepare build dependencies
-        run: sudo apt install curl -y
-
+      - name: Run custom build.sh
+        run: ./build.sh
 
       - name: Prepare Python dependencies
         run: pip3 install -r requirements.txt
-
-
-        # Provide a build script for your software
-        # Make sure the build artifacts are to be found in the artifacts directory
-      - name: Build software
-        run: ./build.sh
-
 
       - name: Archive build results
         uses: actions/upload-artifact@v4
@@ -39,14 +28,13 @@ jobs:
             path: |
                 artifacts
 
-
       - name: Run tests on latest Renode
         uses: antmicro/renode-test-action@v5
         with:
             renode-revision: 'master'
             tests-to-run: 'test.robot'
 
-      - name: Archive latest results
+      - name: Archive Renode latest results
         uses: actions/upload-artifact@v4
         with:
             name: test-results-latest
