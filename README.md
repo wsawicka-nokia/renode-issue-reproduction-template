@@ -4,24 +4,51 @@ This repository is meant to help report issues in (and provide contributions to)
 
 It has a GitHub Actions CI set up for you so that you only need to provide the minimum amount of data which reproduces the issue (= makes the CI fail).
 
-Fork this repo and [adapt the template to build a test case which shows the failure](#usage-to-report-bugs), and if you have an idea how to [provide a fix](#providing-fixes), implement it in this repo to showcase the desired solution and outcome, all nicely automated.
+Fork this repo and [adapt the template to build a test case which shows the failure](#using-the-template-to-make-reproducible-issue-representation), and if you have an idea how to [provide a fix](#usage-to-report-bugs), implement it in this repo to showcase the desired solution and outcome, all nicely automated.
+
+> [!IMPORTANT]
+> Remember to enable workflows on your forked repository, by going to `Actions` tab and clicking `I understand my workflows, go ahead and enable them`, otherwise CI will not be executed when you commit your patches.
+
+## Using the template to make reproducible issue representation
+
+Basic [Renode test script](https://renode.readthedocs.io/en/latest/basic/monitor-syntax.html) is already prepared for you to build upon.
+This script creates a single [Nucleo H533RE](https://designer.antmicro.com/library/devices/nucleo_h533re?software=zephyr|nucleo_h533re|) platform and loads Zephyr Hello World binary.
+The [Robot Framework](https://robotframework.org/) file can easily [be modified](https://renode.readthedocs.io/en/latest/introduction/testing.html#running-the-robot-test-script) to recreate the scenario which causes the issue.
+
+Feel free to modify both of these files and add other if needed e.g. by including [custom platform files](https://renode.readthedocs.io/en/latest/basic/describing_platforms.html#describing-platforms) or by [adding custom models](#overriding-existing-or-adding-new-peripheral-models-in-runtime).
+
+> [!TIP]
+> If you want to run this template locally, you can use [act](https://github.com/nektos/act), which allows you to run CI locally.
+Remember to specify `artifact-server-path` with the directory to which artifacts will be uploaded. Otherwise, CI won't run successfully. Enabling `--action-offline-mode` caches Renode compilation speeding up the workflow.
+>
+> ```
+> act --artifact-server-path=artifacts --action-offline-mode
+> ```
+
+To change the Renode version which the CI is testing against, change `renode-revision` to specific commit SHA (or tag) in [the workflow file](.github/workflows/test.yml)
+If the reproduction requires changes to [Renode's source code](https://renode.readthedocs.io/en/latest/advanced/building_from_sources.html) you can point `renode-repository` to your forked Renode repository in the CI.
+
+Report an issue in [Renode repository](https://github.com/renode/renode) and link to your fork of this repository, with any additional explanations needed.
+
+Files in the `artifacts/` directory will automatically be saved as build artifacts so if you want to share e.g. logs, make sure they end up there after the CI executes.
+
+## How does this template work
+
+1. When you push a commit into your fork of this repository **AND enable workflows**, a GitHub Workflow (CI) is ran.
+2. For each of selected Renode revisions
+    1. `build.sh` is executed, allowing you to easily install additional dependencies
+    2. Custom artifacts located in `artifacts` directory are uploaded to `build-[name]`
+    3. Renode is downloaded, which runs your `test.robot` test
+    4. Test results are uploaded as `test-results-[name]`
 
 ## Important files in this repo
 
-* `.github/workflows` - the GH Actions plumbing; touch it only if you want to make some fundamental changes 
+* `test.resc` - Renode script file, this is where you load the platform and set up simulation 
+* `test.robot` - [Robot Framework](https://robotframework.org/) test file, where you instruct Renode how to reproduce the erroneous behaviour
+* `.github/workflows` - the GH Actions script, modify it when you need to change `renode-revision`, `renode-repository` or to make fundamental changes to the pipeline
 * `artifacts` - any files you want the CI to store for demonstration (e.g. logs) should end up here during the CI job
 * `build.sh` - a stub of a potential build script for your [test software](#providing-test-software)
 * `requirements.txt` - add any Python requirements here, if needed
-* `test.resc` - Renode script file, you will most likely be changing this one
-* `test.robot` - [Robot](https://robotframework.org/) test file, most likely also requiring adaptations
-
-## Usage to report bugs
-
-Adapt the `.resc` and `.robot` files until you get the CI to fail (with the dreaded red cross showing up) in a way that you know should not happen, e.g. the simulated binary should be printing something to UART but apparently doesn't.
-
-Report an issue in https://github.com/renode/renode and link to your clone, with any additional explanations needed.
-
-Files in the `artifacts/` directory will automatically be saved as build artifacts so if you want to share e.g. logs, make sure they end up there after the CI executes.
 
 ## Providing fixes
 
