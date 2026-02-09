@@ -31,6 +31,7 @@ jobs:
       - name: Run tests on latest Renode
         uses: antmicro/renode-test-action@v5
         with:
+            renode-repository: 'https://github.com/renode/renode'
             renode-revision: 'master'
             tests-to-run: 'test.robot'
 
