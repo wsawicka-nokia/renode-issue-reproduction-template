@@ -6,6 +6,56 @@ on:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        item:
+          # Here you can add your fork of Renode
+          - repository: 'https://github.com/renode/renode'
+            revision: v1.16.1
+            name: renode-stable
+          - repository: 'https://github.com/renode/renode'
+            revision: master
+            name: renode-latest
+          # - repository: 'https://github.com/your-organization/renode'
+          #   revision: your-branch
+          #   name: renode-custom
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v5
+
+      - name: Configure git and artifacts dir
+        run: |
+          git config --global user.name "Antmicro"
+          git config --global user.email "contact@antmicro.com"
+      
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-results
+          path: artifacts
+
+      - name: Prepare Python dependencies
+        run: pip3 install -r requirements.txt
+
+      - name: Run tests on Renode
+        uses: antmicro/renode-test-action@v5
+        with:
+            renode-repository: ${{ matrix.item.repository }}
+            renode-revision: ${{ matrix.item.revision }}
+            tests-to-run: 'test.robot'
+
+      - name: Archive Renode simulation results
+        uses: actions/upload-artifact@v4
+        with:
+            name: test-results-${{ matrix.item.name }}
+            path: |
+                report.html
+                log.html
+                robot_output.xml
+
+  build:
+    runs-on: ubuntu-24.04
     steps:
       - name: Clone repository
         uses: actions/checkout@v5
@@ -18,44 +68,10 @@ jobs:
       - name: Run custom build.sh
         run: ./build.sh
 
-      - name: Prepare Python dependencies
-        run: pip3 install -r requirements.txt
-
       - name: Archive build results
         uses: actions/upload-artifact@v4
         with:
             name: build-results
             path: |
                 artifacts
-
-      - name: Run tests on latest Renode
-        uses: antmicro/renode-test-action@v5
-        with:
-            renode-repository: 'https://github.com/renode/renode'
-            renode-revision: 'master'
-            tests-to-run: 'test.robot'
-
-      - name: Archive Renode latest results
-        uses: actions/upload-artifact@v4
-        with:
-            name: test-results-latest
-            path: |
-                report.html
-                log.html
-                robot_output.xml
-
-      - name: Run tests on Renode stable release
-        uses: antmicro/renode-test-action@v5
-        with:
-            renode-revision: 'v1.16.0'
-            tests-to-run: 'test.robot'
-
-      - name: Archive Renode release results
-        uses: actions/upload-artifact@v4
-        with:
-            name: test-results-stable
-            path: |
-                report.html
-                log.html
-                robot_output.xml
-
+    
