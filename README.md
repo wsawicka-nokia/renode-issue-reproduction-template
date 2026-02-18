@@ -43,12 +43,12 @@ Files in the `artifacts/` directory will automatically be saved as build artifac
 
 ## Important files in this repo
 
-* `test.resc` - Renode script file, this is where you load the platform and set up simulation 
-* `test.robot` - [Robot Framework](https://robotframework.org/) test file, where you instruct Renode how to reproduce the erroneous behaviour
-* `.github/workflows` - the GH Actions script, modify it when you need to change `renode-revision`, `renode-repository` or to make fundamental changes to the pipeline
-* `artifacts` - any files you want the CI to store for demonstration (e.g. logs) should end up here during the CI job
-* `build.sh` - a stub of a potential build script for your [test software](#providing-test-software)
-* `requirements.txt` - add any Python requirements here, if needed
+* [test.resc](./test.resc) - Renode script file, this is where you load the platform and set up simulation
+* [test.robot](./test.robot) - [Robot Framework](https://robotframework.org/) test file, where you instruct Renode how to reproduce the erroneous behaviour
+* [test.yml](./.github/workflows/test.yml#L21) - the GH Actions script, here you can add your fork of Renode to the suite or make fundamental changes to the pipeline
+* [artifacts](./artifacts) - any files you want the testing CI to use or store for demonstration (e.g. built binaries, logs) should end up here during the CI job
+* [build.sh](./build.sh) - a stub of a potential build script for your [test software](#providing-test-software)
+* [requirements.txt](./requirements.txt) - add any Python requirements here, if needed
 
 ## Providing fixes
 
