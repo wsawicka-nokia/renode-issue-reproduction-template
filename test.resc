@@ -1,20 +1,12 @@
-# This is a sample RESC script.
-# Please change this file and test.robot to include all necessary steps to reproduce your issue.
-# Make this repository as self contained as possible.
+# Reproduction of an STM32F4 RTC crash on date/time register changes.
 #
-
-$name?="TestMachine"
-$repl?=@https://zephyr-dashboard.renode.io/zephyr_sim/076b625f21444c8ee7ada24bafa5fec55d67e6ab/44771a7b17efb5e2ebc5ace0ab959f913e3980f8/nucleo_h533re/hello_world/hello_world.repl
-$bin?=@https://zephyr-dashboard.renode.io/zephyr/076b625f21444c8ee7ada24bafa5fec55d67e6ab/nucleo_h533re/hello_world/hello_world.elf
+# The STM32F4_RTC model applies writes to the time/date registers field-by-field. 
+# While the firmware writes the whole 32-bit register in one store, 
+# Renode runs each field write callback sequentially, which can produce 
+# a temporarily invalid DateTime (e.g. day-of-month 0 when setting a day divisible 
+# by 10), throwing ArgumentOutOfRangeException and crashing the simulation.
 
 using sysbus
-mach create $name
-machine LoadPlatformDescription $repl 
 
-showAnalyzer usart2
-
-macro reset
-"""
-    sysbus LoadELF $bin
-"""
-runMacro $reset
+mach create "stm32f4"
+machine LoadPlatformDescription @platforms/cpus/stm32f4.repl
