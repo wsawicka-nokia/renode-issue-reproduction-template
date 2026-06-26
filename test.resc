@@ -1,12 +1,17 @@
-# Reproduction of an STM32F4 RTC crash on date/time register changes.
+# Fix for the STM32F4 RTC crash on date/time register changes.
 #
-# The STM32F4_RTC model applies writes to the time/date registers field-by-field. 
-# While the firmware writes the whole 32-bit register in one store, 
-# Renode runs each field write callback sequentially, which can produce 
-# a temporarily invalid DateTime (e.g. day-of-month 0 when setting a day divisible 
-# by 10), throwing ArgumentOutOfRangeException and crashing the simulation.
+# The original STM32F4_RTC model applied time/date register writes field-by-field,
+# which could produce a transiently invalid DateTime (e.g. day-of-month 0 when
+# setting a day divisible by 10), throwing ArgumentOutOfRangeException.
+#
+# STM32F4_RTC_Fixed applies the write atomically and corrects the
+# write-protection / init-mode guard, so the previously failing reproduction passes.
 
 using sysbus
 
+# Load the fixed RTC model implementation at runtime. If the dynamic compiler
+# reports unreferenced types, add `EnsureTypeIsLoaded` lines here (see README).
+include @STM32F4_RTC_Fixed.cs
+
 mach create "stm32f4"
-machine LoadPlatformDescription @platforms/cpus/stm32f4.repl
+machine LoadPlatformDescription @stm32f4_fix.repl

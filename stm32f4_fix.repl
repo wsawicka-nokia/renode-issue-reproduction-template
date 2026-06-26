@@ -1,0 +1,4 @@
+using "platforms/cpus/stm32f4.repl"
+
+rtc: Timers.STM32F4_RTC_Fixed @ sysbus 0x40002800
+    AlarmIRQ -> nvic@41
