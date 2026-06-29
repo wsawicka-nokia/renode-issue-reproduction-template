@@ -9,9 +9,10 @@
 
 using sysbus
 
-# Load the fixed RTC model implementation at runtime. If the dynamic compiler
-# reports unreferenced types, add `EnsureTypeIsLoaded` lines here (see README).
-include @STM32F4_RTC_Fixed.cs
+# Load the fixed RTC model implementation at runtime. $ORIGIN expands to the
+# directory of this script, so the files resolve regardless of the working
+# directory (e.g. under renode-test in CI).
+include $ORIGIN/STM32F4_RTC_Fixed.cs
 
 mach create "stm32f4"
-machine LoadPlatformDescription @stm32f4_fix.repl
+machine LoadPlatformDescription $ORIGIN/stm32f4_fix.repl
