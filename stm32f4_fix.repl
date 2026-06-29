@@ -1,4 +1,16 @@
-using "platforms/cpus/stm32f4.repl"
+// Minimal STM32F4 platform that wires in the fixed RTC model
+// (STM32F4_RTC_Fixed) instead of the built-in Timers.STM32F4_RTC.
+// Only the parts needed to exercise the RTC over the system bus are included,
+// which keeps it robust across Renode versions.
+
+nvic: IRQControllers.NVIC @ sysbus 0xE000E000
+    priorityMask: 0xF0
+    systickFrequency: 72000000
+    IRQ -> cpu@0
+
+cpu: CPU.CortexM @ sysbus
+    cpuType: "cortex-m4"
+    nvic: nvic
 
 rtc: Timers.STM32F4_RTC_Fixed @ sysbus 0x40002800
     AlarmIRQ -> nvic@41
